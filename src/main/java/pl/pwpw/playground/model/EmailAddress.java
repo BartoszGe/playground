@@ -1,11 +1,10 @@
-package pl.pwpw.playground.application;
+package pl.pwpw.playground.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
 
 /**
  *
@@ -14,11 +13,7 @@ import javax.persistence.Embedded;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-class ContactDetails {
+class EmailAddress {
 
-  @Embedded
-  private EmailAddress emailAddress;
-
-  @Embedded
-  private PhoneNumber phoneNumber;
+  private String emailAddress;
 }

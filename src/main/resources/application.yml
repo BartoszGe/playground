@@ -9,6 +9,7 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password:
+    initialization-mode: always
   data:
     jpa:
       repositories:
