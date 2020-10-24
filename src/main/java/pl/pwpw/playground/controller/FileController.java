@@ -27,11 +27,6 @@ public class FileController {
   public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
                                       @RequestParam("application_id") String applicationId) {
 
-    URI uri = fileService.save(file, applicationId);
-
-    if (Option.of(uri).isDefined()) {
-      return ResponseEntity.created(uri).build();
-    }
-    return ResponseEntity.badRequest().build();
+    return ResponseEntity.created(fileService.save(file, applicationId)).build();
   }
 }

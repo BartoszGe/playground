@@ -11,7 +11,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.pwpw.playground.service.FileService;
 
+import java.net.URI;
+
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,17 +41,4 @@ public class FileControllerTest {
 
     then(this.fileService).should().save(multipartFile, applicationId);
   }
-
-//  @Test
-//  public void shouldReturnWhenUploadedFile() throws Exception {
-//
-//    String applicationId = "1";
-//
-//    MockMultipartFile multipartFile = new MockMultipartFile("", "test.pdf", APPLICATION_PDF.getType(), "example".getBytes());
-//
-//    this.mvc.perform(multipart("/file/").file(multipartFile).param("application_id", applicationId))
-//            .andExpect(status().isCreated());
-//
-//    then(this.fileService).should().save(multipartFile, applicationId);
-//  }
 }
