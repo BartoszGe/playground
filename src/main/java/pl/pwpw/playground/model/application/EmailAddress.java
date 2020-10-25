@@ -13,7 +13,7 @@ import javax.persistence.Embeddable;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-class EmailAddress {
+public class EmailAddress {
 
   private String emailAddress;
 }
