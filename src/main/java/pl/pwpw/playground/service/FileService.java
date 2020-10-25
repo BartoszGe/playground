@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import pl.pwpw.playground.PlaygroundProperties;
-import pl.pwpw.playground.model.ApplicationFile;
-import pl.pwpw.playground.model.ApplicationFileType;
+import pl.pwpw.playground.model.application.Application;
+import pl.pwpw.playground.model.file.ApplicationFile;
+import pl.pwpw.playground.model.file.ApplicationFileType;
+import pl.pwpw.playground.repository.ApplicationRepository;
 import pl.pwpw.playground.repository.FileRepository;
 
 import java.io.IOException;
@@ -31,12 +33,16 @@ public class FileService {
 
   private final FileRepository fileRepository;
 
+  private final ApplicationRepository applicationRepository;
+
   @Autowired
   public FileService(PlaygroundProperties properties,
-                     FileRepository fileRepository) {
+                     FileRepository fileRepository,
+                     ApplicationRepository applicationRepository) {
 
     this.rootLocation = Paths.get(properties.getLocation());
     this.fileRepository = fileRepository;
+    this.applicationRepository = applicationRepository;
 
     init();
   }
@@ -55,6 +61,9 @@ public class FileService {
     Option.of(file.isEmpty())
           .getOrElseThrow(() -> new FileException("Failed to save an empty file"));
 
+    Application application = Option.of(applicationRepository.getOne(Long.valueOf(applicationId)))
+          .getOrElseThrow(() -> new FileException("Failed to find application using this id"));
+
     String fileName = Option.of(file.getOriginalFilename())
                             .map(StringUtils::cleanPath)
                             .getOrElseThrow(() -> new FileException("File name cannot be null"));
@@ -62,15 +71,13 @@ public class FileService {
     ApplicationFileType fileType = Option.of(ApplicationFileType.valueOf(getFileType(fileName).toUpperCase()))
                                          .getOrElseThrow(() -> new FileException("Wrong file format. Possible: pdf or jpg"));
 
-    URI newFileUri = this.rootLocation.resolve(fileName).toUri();
-
     Try.of(file::getInputStream)
        .andThenTry(inputStream -> copyFile(inputStream, fileName))
        .onSuccess(info -> log.info("Successful copying of the file: {}", info))
        .getOrElseThrow(throwable -> new FileException("Cannot copy a file", throwable));
 
-    saveToDatabase(applicationId, newFileUri, fileType);
-
+    URI newFileUri = this.rootLocation.resolve(fileName).toUri();
+    saveToDatabase(newFileUri, fileType, application);
     return newFileUri;
   }
 
@@ -80,7 +87,8 @@ public class FileService {
        .getOrElseThrow(() -> new FileException("Problem with copying the file"));
   }
 
-  private void saveToDatabase(final String applicationId, final URI newFileUri, final ApplicationFileType applicationFileType) {
+  private void saveToDatabase(final URI newFileUri, final ApplicationFileType applicationFileType,
+                              final Application application) {
 
     BasicFileAttributes fileAttributes = Try.of(() -> Files.readAttributes(Path.of(newFileUri), BasicFileAttributes.class))
                                             .getOrElseThrow(() -> new FileException("Problem with reading the file"));
@@ -88,7 +96,7 @@ public class FileService {
     Date creationDate = new Date(fileAttributes.creationTime().toMillis());
     ApplicationFileType fileType = applicationFileType;
 
-    fileRepository.save(new ApplicationFile(null, creationDate, fileType, newFileUri.toString()));
+    fileRepository.save(new ApplicationFile(null, creationDate, fileType, newFileUri.toString(), application));
   }
 
   private String getFileType(final String fileName) {

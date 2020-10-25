@@ -1,17 +1,16 @@
-package pl.pwpw.playground.model;
+package pl.pwpw.playground.model.file;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.pwpw.playground.model.application.Application;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.net.URI;
 import java.util.Date;
 
 @Data
 @Entity
-@Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationFile implements Serializable {
@@ -26,4 +25,7 @@ public class ApplicationFile implements Serializable {
   private ApplicationFileType type;
 
   private String filePath;
+
+  @OneToOne
+  private Application application;
 }

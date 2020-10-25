@@ -1,4 +1,4 @@
-package pl.pwpw.playground.model;
+package pl.pwpw.playground.model.application;
 
 import javax.persistence.Embeddable;
 
