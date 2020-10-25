@@ -14,7 +14,7 @@ import javax.persistence.Embedded;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-class ContactDetails {
+public class ContactDetails {
 
   @Embedded
   private EmailAddress emailAddress;
