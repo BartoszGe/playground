@@ -39,6 +39,6 @@ public class FileControllerTest {
     this.mvc.perform(multipart("/file/").file(multipartFile).param("application_id", applicationId))
             .andExpect(status().isCreated());
 
-    then(this.fileService).should().save(multipartFile, applicationId);
+    then(this.fileService).should().save(multipartFile, Long.valueOf(applicationId));
   }
 }

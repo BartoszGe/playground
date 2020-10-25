@@ -6,6 +6,7 @@ import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import pl.pwpw.playground.PlaygroundProperties;
@@ -56,20 +57,17 @@ public class FileService {
     }
   }
 
-  public URI save(final MultipartFile file, final String applicationId) {
-
-    Option.of(file.isEmpty())
-          .getOrElseThrow(() -> new FileException("Failed to save an empty file"));
-
-    Application application = Option.of(applicationRepository.getOne(Long.valueOf(applicationId)))
-          .getOrElseThrow(() -> new FileException("Failed to find application using this id"));
+  public URI save(final MultipartFile file, final Long applicationId) {
 
     String fileName = Option.of(file.getOriginalFilename())
                             .map(StringUtils::cleanPath)
-                            .getOrElseThrow(() -> new FileException("File name cannot be null"));
+                            .getOrElseThrow(() ->new FileException("File name cannot be blank"));
 
-    ApplicationFileType fileType = Option.of(ApplicationFileType.valueOf(getFileType(fileName).toUpperCase()))
+    ApplicationFileType fileType = Try.of(() -> ApplicationFileType.valueOf(getFileType(fileName).toUpperCase()))
                                          .getOrElseThrow(() -> new FileException("Wrong file format. Possible: pdf or jpg"));
+
+    Application application = Try.of(() -> applicationRepository.findById(applicationId).get())
+                                 .getOrElseThrow(() -> new FileException("Failed to find application using this id"));
 
     Try.of(file::getInputStream)
        .andThenTry(inputStream -> copyFile(inputStream, fileName))
@@ -83,7 +81,7 @@ public class FileService {
 
   private void copyFile(final InputStream inputStream, final String filename) {
 
-    Try.of(() -> Files.copy(inputStream, this.rootLocation.resolve(filename), StandardCopyOption.REPLACE_EXISTING))
+    Try.run(() -> Files.copy(inputStream, this.rootLocation.resolve(filename), StandardCopyOption.REPLACE_EXISTING))
        .getOrElseThrow(() -> new FileException("Problem with copying the file"));
   }
 
@@ -91,12 +89,11 @@ public class FileService {
                               final Application application) {
 
     BasicFileAttributes fileAttributes = Try.of(() -> Files.readAttributes(Path.of(newFileUri), BasicFileAttributes.class))
-                                            .getOrElseThrow(() -> new FileException("Problem with reading the file"));
+                                            .getOrElseThrow(() -> new FileException("Problem with reading attributes from file"));
 
     Date creationDate = new Date(fileAttributes.creationTime().toMillis());
-    ApplicationFileType fileType = applicationFileType;
 
-    fileRepository.save(new ApplicationFile(null, creationDate, fileType, newFileUri.toString(), application));
+    fileRepository.save(new ApplicationFile(null, creationDate, applicationFileType, newFileUri.toString(), application));
   }
 
   private String getFileType(final String fileName) {
