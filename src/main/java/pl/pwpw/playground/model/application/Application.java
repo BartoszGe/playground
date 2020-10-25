@@ -1,4 +1,4 @@
-package pl.pwpw.playground.application;
+package pl.pwpw.playground.model.application;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-class Application {
+public class Application {
 
   @Id
   @SequenceGenerator(name = "app_id_seq", allocationSize = 1)

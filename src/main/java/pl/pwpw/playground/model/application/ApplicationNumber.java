@@ -1,8 +1,9 @@
-package pl.pwpw.playground.application;
+package pl.pwpw.playground.model.application;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Embeddable;
 
@@ -11,9 +12,9 @@ import javax.persistence.Embeddable;
  */
 @Embeddable
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-class EmailAddress {
+@NoArgsConstructor
+public class ApplicationNumber {
 
-  private String emailAddress;
+  private String applicationNumber;
 }

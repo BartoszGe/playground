@@ -2,8 +2,10 @@ package pl.pwpw.playground;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties(PlaygroundProperties.class)
 public class PlaygroundApplication {
 
   public static void main(String[] args) {
